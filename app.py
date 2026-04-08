@@ -77,4 +77,67 @@ if uploaded_file is not None:
     for s_id, d in sorular.items():
         if s_id in df_notlar.columns:
             # Barajı geçen öğrenci sayısı
-            basarili_sayisi = sum(1 for ogr in ogrenciler if pd.notna(ogr[s_id]) and ogr[s_id
+            basarili_sayisi = sum(1 for ogr in ogrenciler if pd.notna(ogr[s_id]) and ogr[s_id] >= (d['tam_puan'] * d['baraj']))
+            oran = basarili_sayisi / len(ogrenciler) if len(ogrenciler) > 0 else 0
+            
+            soru_data.append({
+                "Soru": s_id, 
+                "İlgili Kazanım": d['ok'], 
+                "Başarı Oranı (%)": round(oran * 100, 1)
+            })
+            
+            # Kazanım başarılarını toplama
+            ok_basarilari[d['ok']] = ok_basarilari.get(d['ok'], 0) + oran
+            ok_sayaci[d['ok']] = ok_sayaci.get(d['ok'], 0) + 1
+            
+    st.table(pd.DataFrame(soru_data))
+
+    # 2. Aşama: ÖK Başarıları
+    st.subheader("2. Öğrenme Kazanımı (ÖK) Genel Başarı Oranları")
+    ok_final = []
+    for ok in ok_basarilari:
+        # Kazanım ortalamasını al
+        ok_basarilari[ok] /= ok_sayaci[ok]
+        ok_final.append({
+            "Öğrenme Kazanımı": ok, 
+            "Genel Başarı (%)": round(ok_basarilari[ok] * 100, 1)
+        })
+    st.table(pd.DataFrame(ok_final))
+
+    # 3. Aşama: PY Sağlama Düzeyleri (Ağırlıklı Ortalama)
+    st.subheader("3. Program Yeterliliği (PY) Sağlama Düzeyleri")
+    py_data = []
+    py_sutunlari = [c for c in df_matris.columns if c != 'ÖK']
+    
+    for py in py_sutunlari:
+        pay, payda = 0, 0
+        for ok, oran in ok_basarilari.items():
+            katki = ok_py_matrisi.get(ok, {}).get(py, 0)
+            if pd.notna(katki) and katki > 0:
+                pay += (oran * katki)
+                payda += katki
+        
+        py_skor = (pay / payda) if payda > 0 else 0
+        py_data.append({
+            "Program Yeterliliği": py, 
+            "Sağlama Düzeyi (%)": round(py_skor * 100, 1)
+        })
+    st.table(pd.DataFrame(py_data))
+
+    # --- PUKÖ VE İMZA ---
+    st.divider()
+    st.subheader("📝 İyileştirme Planı ve Değerlendirme (PUKÖ)")
+    if eylem_plani:
+        st.info(eylem_plani)
+    else:
+        st.warning("Bu sınav değerlendirmesi için iyileştirme planı belirtilmemiştir.")
+    
+    st.write("<br><br>", unsafe_allow_html=True)
+    f1, f2 = st.columns([2, 1])
+    with f1:
+        st.write(f"**Rapor Tarihi:** {datetime.now().strftime('%d.%m.%Y')}")
+    with f2:
+        st.write("**Onay / İmza**")
+        st.write(f"<br><br><strong>{ogretim_elemani}</strong>", unsafe_allow_html=True)
+
+    st.success("✅ Analiz başarıyla tamamlandı. Tabloları seçerek kopyalayabilir ve kanıt dosyanıza ekleyebilirsiniz.")
