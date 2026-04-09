@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Sayfa Ayarları
-st.set_page_config(page_title="HASAT v4.2 | Konsept Tasarım: İbrahim Çelik", layout="wide")
+st.set_page_config(page_title="HASAT v.1 | Konsept Tasarım: İbrahim Çelik", layout="wide")
 
-# --- ÜST BAŞLIK VE KONSEPT TASARIM ---
-st.title("🌾 HASAT v4.2")
+# --- ÜST BAŞLIK ---
+st.title("🌾 HASAT v.1")
 st.subheader("Hesaplamalı Akreditasyon Sistemi ve Analiz Tabanı")
 st.markdown("### **Konsept Tasarım: Doç. Dr. İbrahim Çelik**")
 st.markdown("*PAÜ Çal MYO - Dijital Tarım Teknolojileri*")
@@ -27,7 +27,7 @@ with col2:
 
 st.divider()
 
-uploaded_file = st.file_uploader("Excel Şablonunuzu Yükleyin", type=["xlsx", "xls"])
+uploaded_file = st.file_uploader("Lütfen Excel Şablonunuzu Yükleyin", type=["xlsx", "xls"])
 
 if uploaded_file is not None:
     try:
