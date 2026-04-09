@@ -4,12 +4,13 @@ import plotly.graph_objects as go
 from datetime import datetime
 
 # Sayfa Ayarları
-st.set_page_config(page_title="HASAT v4.2 | Tam Analiz", layout="wide")
+st.set_page_config(page_title="HASAT v4.2 | Konsept Tasarım: İbrahim Çelik", layout="wide")
 
-# --- ÜST BAŞLIK ---
+# --- ÜST BAŞLIK VE KONSEPT TASARIM ---
 st.title("🌾 HASAT v4.2")
 st.subheader("Hesaplamalı Akreditasyon Sistemi ve Analiz Tabanı")
-st.markdown("### **Proje Yürütücüsü: Doç. Dr. İbrahim Çelik**")
+st.markdown("### **Konsept Tasarım: Doç. Dr. İbrahim Çelik**")
+st.markdown("*PAÜ Çal MYO - Dijital Tarım Teknolojileri*")
 st.divider()
 
 # --- RAPOR BİLGİLERİ GİRİŞİ ---
@@ -30,7 +31,6 @@ uploaded_file = st.file_uploader("Excel Şablonunuzu Yükleyin", type=["xlsx", "
 
 if uploaded_file is not None:
     try:
-        # Excel sekmelerini oku
         df_notlar = pd.read_excel(uploaded_file, sheet_name='Notlar')
         df_sorular = pd.read_excel(uploaded_file, sheet_name='Sorular')
         df_matris = pd.read_excel(uploaded_file, sheet_name='Matris')
@@ -65,7 +65,6 @@ if uploaded_file is not None:
             ok_basarilari[d['ok']] = ok_basarilari.get(d['ok'], 0) + oran
             ok_sayaci[d['ok']] = ok_sayaci.get(d['ok'], 0) + 1
 
-    # ÖK ve PY Sonuçları
     df_ok_sonuc = pd.DataFrame([{"Kazanım": ok, "Başarı %": round((v/ok_sayaci[ok])*100, 1)} for ok, v in ok_basarilari.items()])
     
     py_final_data = []
@@ -77,64 +76,4 @@ if uploaded_file is not None:
             if pd.notna(katki) and katki > 0:
                 pay += (oran * katki)
                 payda += katki
-        py_final_data.append({"Yeterlilik": py, "Sağlama %": round((pay/payda)*100, 1) if payda > 0 else 0})
-    df_py_sonuc = pd.DataFrame(py_final_data)
-
-    # --- RAPOR ÇIKTISI BAŞLIYOR ---
-    st.markdown("---")
-    st.markdown(f"<h2 style='text-align: center; color: #2c3e50;'>📄 DERS DEĞERLENDİRME VE ANALİZ RAPORU</h2>", unsafe_allow_html=True)
-    
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.write(f"**Ders:** {ders_adi}")
-        st.write(f"**Öğretim Elemanı:** {ogretim_elemani}")
-    with c2:
-        st.write(f"**Sınav:** {sinav_turu}")
-        st.write(f"**Yöntem:** {olcme_araci}")
-    with c3:
-        st.write(f"**Dönem:** {donem}")
-        st.write(f"**Sınıf Ortalaması:** <span style='color:red; font-weight:bold;'>{round(sinif_ort, 2)}</span>", unsafe_allow_html=True)
-
-    st.divider()
-
-    # --- TABLOLAR ---
-    st.subheader("1. Soru Bazlı Başarı Analizi")
-    st.table(pd.DataFrame(soru_analiz_data))
-
-    st.subheader("2. Kazanım ve Yeterlilik Özet Tabloları")
-    t_col1, t_col2 = st.columns(2)
-    with t_col1:
-        st.table(df_ok_sonuc)
-    with t_col2:
-        st.table(df_py_sonuc)
-
-    # --- GÖRSEL ANALİZLER (EN SONA ALINDI) ---
-    st.subheader("3. Görsel Yetkinlik Analizi (Radar)")
-    g_col1, g_col2 = st.columns(2)
-
-    with g_col1:
-        st.write("**Öğrenme Kazanımları (ÖK) Profili**")
-        fig_ok = go.Figure(data=go.Scatterpolar(r=df_ok_sonuc['Başarı %'], theta=df_ok_sonuc['Kazanım'], fill='toself', name='Başarı %'))
-        fig_ok.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), showlegend=False)
-        st.plotly_chart(fig_ok, use_container_width=True)
-
-    with g_col2:
-        st.write("**Program Yeterlilikleri (PY) Profili**")
-        fig_py = go.Figure(data=go.Scatterpolar(r=df_py_sonuc['Sağlama %'], theta=df_py_sonuc['Yeterlilik'], fill='toself', fillcolor='rgba(255, 0, 0, 0.3)', line=dict(color='red'), name='Sağlama %'))
-        fig_py.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), showlegend=False)
-        st.plotly_chart(fig_py, use_container_width=True)
-
-    # --- PUKÖ VE İMZA ---
-    st.divider()
-    st.subheader("📝 İyileştirme Planı (PUKÖ)")
-    st.info(eylem_plani if eylem_plani else "Sürekli iyileştirme planı belirtilmemiştir.")
-    
-    st.write("<br><br>", unsafe_allow_html=True)
-    f1, f2 = st.columns([2, 1])
-    with f1:
-        st.write(f"**Rapor Tarihi:** {datetime.now().strftime('%d.%m.%Y')}")
-    with f2:
-        st.write("**İmza / Onay**")
-        st.write(f"<br><strong>{ogretim_elemani}</strong>", unsafe_allow_html=True)
-
-    st.success("✅ Analiz başarıyla tamamlandı. Raporunuzu kopyalayarak ilgili dosyalara ekleyebilirsiniz.")
+        py_final_data.append({"Yeterlilik": py, "Sağlama %": round((pay/payda)*100, 1) if payda
